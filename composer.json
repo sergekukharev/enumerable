@@ -10,5 +10,10 @@
             "name": "Serge Kukharev",
             "email": "serge.kukharev@gmail.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sergekukharev\\Enumerable\\": "src/"
+        }
+    }
 }
