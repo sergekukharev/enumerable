@@ -4,16 +4,17 @@ namespace Sergekukharev\Enumerable;
 
 use Countable;
 use Iterator;
+use IteratorAggregate;
 
-interface EnumerableInterface extends Countable
+interface EnumerableInterface extends Countable, IteratorAggregate
 {
     /**
      * Core of the class, calls $callback on each element.
      *
-     * @param callable $callback
+     * @param callable|null $callback
      * @return void
      */
-    public function each(callable $callback);
+    public function each(callable $callback = null);
 
     /**
      * Runs callback against each collection element. Returns True if block never returns false or null,
@@ -77,15 +78,13 @@ interface EnumerableInterface extends Countable
     /**
      * Calls $callback on each element $times times.
      *
-     * If $times is null, calls $callback indefinitely.
-     *
      * If $times is 0 or negative, does nothing.
      *
      * @param callable $callback
      * @param int $times
      * @return void
      */
-    public function cycle(callable $callback, $times = null);
+    public function cycle(callable $callback, $times);
 
     /**
      * Drops $count elements from the collection and returns the rest.
@@ -329,7 +328,8 @@ interface EnumerableInterface extends Countable
      * If $compare is given, it's results will be used to compare items between each other.
      * $compare should only return -1, 0 or 1.
      *
-     * If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to sort collection.
+     * If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to sort
+     * collection.
      *
      * Otherwise, method will try to apply normal comparison logic.
      *
