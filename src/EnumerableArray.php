@@ -3,7 +3,7 @@
 namespace Sergekukharev\Enumerable;
 
 use ArrayIterator;
-use Traversable;
+use RuntimeException;
 
 class EnumerableArray implements EnumerableInterface
 {
@@ -33,7 +33,7 @@ class EnumerableArray implements EnumerableInterface
      */
     public function each(callable $callback = null)
     {
-        foreach ($this->iterator as $value) {
+        foreach ($this->getIterator() as $value) {
             $callback($value);
         }
     }
@@ -71,9 +71,196 @@ class EnumerableArray implements EnumerableInterface
      */
     public function chunk(callable $callback)
     {
+        //TODO implement me properly.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function collect(callable $callback)
+    {
+        $newData = [];
+
+        foreach ($this->getIterator() as $value) {
+            $newData[] = $callback($value);
+        }
+
+        return new static($newData);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function count(callable $callback = null)
+    {
+        if ($callback === null) {
+            return $this->getIterator()->count();
+        }
+
+        $count = 0;
+
+        foreach ($this->getIterator() as $item) {
+            if ($callback($item) === true) {
+                $count++;
+            }
+        }
+
+        return $count;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function countItem($item)
+    {
+        return $this->count(function($i) use ($item) { return $i === $item; });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function drop($count)
+    {
+        return new static(array_slice($this->getIterator()->getArrayCopy(), $count));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropWhile(callable $callback)
+    {
+        $itemsToDrop = 0;
+
+        foreach ($this->getIterator() as $item) {
+            if ($callback($item) === false) {
+                break;
+            }
+
+            $itemsToDrop++;
+        }
+
+        return $this->drop($itemsToDrop);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eachWithIndex(callable $callback)
+    {
+        foreach ($this->getIterator() as $key => $value) {
+            $callback($key, $value);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toArray()
+    {
+        return $this->getIterator()->getArrayCopy();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function find(callable $callback, callable $noneFound = null)
+    {
+        foreach ($this->getIterator() as $item) {
+            if ($callback($item) === true) {
+                return $item;
+            }
+        }
+
+        return $noneFound === null ? null : $noneFound();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(callable $callback)
+    {
+        $data = [];
+
+        foreach ($this->getIterator() as $item) {
+            if ($callback($item) === true) {
+                $data[] = $item;
+            }
+        }
+
+        return new static($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIndex($valueOrCallback, callable $noneFound = null)
+    {
+        return is_callable($valueOrCallback) ? $this->findIndexByCallback($valueOrCallback, $noneFound) :
+            $this->findIndexByValue($valueOrCallback, $noneFound);
+    }
+
+    /**
+     * @param $valueOrCallback
+     * @param callable $noneFound
+     * @return mixed
+     */
+    private function findIndexByCallback($valueOrCallback, callable $noneFound = null)
+    {
+        foreach ($this->getIterator() as $index => $item) {
+            if ($valueOrCallback($item) === true) {
+                return $index;
+            }
+        }
+
+        return $noneFound === null ? null : $noneFound();
+    }
+
+    /**
+     * @param $valueOrCallback
+     * @param callable $noneFound
+     * @return mixed
+     */
+    private function findIndexByValue($valueOrCallback, callable $noneFound = null)
+    {
+        foreach ($this->getIterator() as $index => $item) {
+            if ($item === $valueOrCallback) {
+                return $index;
+            }
+        }
+
+        return $noneFound === null ? null : $noneFound();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function first($count = null)
+    {
+        if ($count === null) {
+            return $this->getIterator()->current();
+        }
+
+        $data = [];
+        $maxIndex = min($this->getIterator()->count(), $count);
+        $iterator = $this->getIterator();
+
+        for($i = 0; $i < $maxIndex; $i++) {
+            $data[] = $iterator->current();
+            $iterator->next();
+        }
+
+        return new static($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function groupBy(callable $callback)
+    {
         $chunks = [];
 
-        foreach ($this->iterator as $value) {
+        foreach ($this->getIterator() as $value) {
             $chunkKey = $callback($value);
 
             if (!isset($chunks[$chunkKey])) {
@@ -89,129 +276,105 @@ class EnumerableArray implements EnumerableInterface
     /**
      * @inheritDoc
      */
-    public function collect(callable $callback)
-    {
-        // TODO: Implement collect() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function count(callable $callback = null)
-    {
-        // TODO: Implement count() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function countItem($item)
-    {
-        // TODO: Implement countItem() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function cycle(callable $callback, $times = null)
-    {
-        // TODO: Implement cycle() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function drop($count)
-    {
-        // TODO: Implement drop() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function dropWhile(callable $callback)
-    {
-        // TODO: Implement dropWhile() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function eachSlice($size, callable $callback)
-    {
-        // TODO: Implement eachSlice() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function eachWithIndex(callable $callback)
-    {
-        // TODO: Implement eachWithIndex() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function toArray()
-    {
-        // TODO: Implement toArray() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function find(callable $callback, callable $noneFound = null)
-    {
-        // TODO: Implement find() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAll(callable $callback)
-    {
-        // TODO: Implement findAll() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findIndex($valueOrCallback)
-    {
-        // TODO: Implement findIndex() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function first($count = null)
-    {
-        // TODO: Implement first() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function groupBy(callable $callback)
-    {
-        // TODO: Implement groupBy() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function doesInclude($value)
     {
-        // TODO: Implement doesInclude() method.
+        foreach ($this->getIterator() as $item) {
+            if ($item === $value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @inheritDoc
+     * @throws \RuntimeException
      */
-    public function reduce($operationOrCallback, $initial = null)
+    public function reduce($operation, $initial = null)
     {
-        // TODO: Implement reduce() method.
+        switch ($operation) {
+            case '.':
+                return $this->reduceToString($initial);
+            case '+':
+                return $this->reduceToSum($initial);
+            case '-':
+                return $this->reduceToDiff($initial);
+            case '*':
+                return $this->reduceToMultiplication($initial);
+            case '/':
+                return $this->reduceToDivision($initial);
+            default:
+                throw new \RuntimeException('Unknown reduce operation');
+        }
+    }
+
+    private function reduceToString($initial) {
+        $memo = $initial === null ? '' : $initial;
+
+        if (!is_string($memo)) {
+            throw new RuntimeException('Initial value for reduce operation should be string');
+        }
+
+        foreach ($this->getIterator() as $item) {
+            $memo .= $item;
+        }
+
+        return $memo;
+    }
+
+    private function reduceToSum($initial) {
+        $memo = $initial === null ? 0 : $initial;
+
+        foreach ($this->getIterator() as $item) {
+            $memo += $item;
+        }
+
+        return $memo;
+    }
+
+    private function reduceToDiff($initial) {
+        $memo = $initial;
+
+        foreach ($this->getIterator() as $item) {
+            if ($memo === null) {
+                $memo = $item;
+                continue;
+            }
+
+            $memo -= $item;
+        }
+
+        return $memo;
+    }
+
+    private function reduceToMultiplication($initial) {
+        $memo = $initial === null ? 1 : $initial;
+
+        foreach ($this->getIterator() as $item) {
+            $memo *= $item;
+        }
+
+        return $memo;
+    }
+
+    private function reduceToDivision($initial) {
+        if (($initial !== null && $this->doesInclude(0)) || $this->drop(1)->doesInclude(0)) {
+            throw new RuntimeException('Collection contains Zero(s). Can\'t apply reduce with division');
+        }
+
+        $memo = $initial;
+
+        foreach ($this->getIterator() as $item) {
+            if ($memo === null) {
+                $memo = $item;
+                continue;
+            }
+
+            $memo /= $item;
+        }
+
+        return $memo;
     }
 
     /**
@@ -219,7 +382,7 @@ class EnumerableArray implements EnumerableInterface
      */
     public function map(callable $callback)
     {
-        // TODO: Implement map() method.
+        return $this->collect($callback);
     }
 
     /**
@@ -227,7 +390,21 @@ class EnumerableArray implements EnumerableInterface
      */
     public function max(callable $compare = null)
     {
-        // TODO: Implement max() method.
+        if ($compare === null) {
+            $compare = function($a, $b) {
+                return $a <=> $b;
+            };
+        }
+
+        $maxValue = $this->getIterator()->current();
+
+        foreach ($this->getIterator() as $item) {
+            if ($compare($item, $maxValue) === 1) {
+                $maxValue = $item;
+            }
+        }
+
+        return $maxValue;
     }
 
     /**
@@ -243,7 +420,21 @@ class EnumerableArray implements EnumerableInterface
      */
     public function min(callable $compare = null)
     {
-        // TODO: Implement min() method.
+        if ($compare === null) {
+            $compare = function($a, $b) {
+                return $a <=> $b;
+            };
+        }
+
+        $minValue = $this->getIterator()->current();
+
+        foreach ($this->getIterator() as $item) {
+            if ($compare($item, $minValue) === -1) {
+                $minValue = $item;
+            }
+        }
+
+        return $minValue;
     }
 
     /**
@@ -259,7 +450,10 @@ class EnumerableArray implements EnumerableInterface
      */
     public function minMax(callable $compare = null)
     {
-        // TODO: Implement minMax() method.
+        return [
+            $this->min($compare),
+            $this->max($compare)
+        ];
     }
 
     /**

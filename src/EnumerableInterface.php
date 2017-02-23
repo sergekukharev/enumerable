@@ -42,6 +42,9 @@ interface EnumerableInterface extends Countable, IteratorAggregate
     /**
      * Enumerates over the items, chunking them together based on the return value of the callback.
      *
+     * Each consecutive call to callback that returns the same value will add item to the current chunk.
+     * Otherwise it will start a new chunk.
+     *
      * Elements that return the same callback value are chunked together.
      *
      * @param callable $callback
@@ -50,7 +53,7 @@ interface EnumerableInterface extends Countable, IteratorAggregate
     public function chunk(callable $callback);
 
     /**
-     * Returns a new instance of EnumerableInterface with the results of running callback agains each element.
+     * Returns a new instance of EnumerableInterface with the results of running callback against each element.
      *
      * @param callable $callback
      * @return static
@@ -76,17 +79,6 @@ interface EnumerableInterface extends Countable, IteratorAggregate
     public function countItem($item);
 
     /**
-     * Calls $callback on each element $times times.
-     *
-     * If $times is 0 or negative, does nothing.
-     *
-     * @param callable $callback
-     * @param int $times
-     * @return void
-     */
-    public function cycle(callable $callback, $times);
-
-    /**
      * Drops $count elements from the collection and returns the rest.
      *
      * @param $count
@@ -102,15 +94,6 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      * @return static
      */
     public function dropWhile(callable $callback);
-
-    /**
-     * Iterates $callback on each element and groups them in slices of given $size.
-     *
-     * @param int $size
-     * @param callable $callback
-     * @return mixed
-     */
-    public function eachSlice($size, callable $callback);
 
     /**
      * Calls $callback with each's elements index and value.
@@ -155,15 +138,16 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      * Otherwise returns the index of the first element in collection for which the element is identical to $value.
      *
      * @param callable|mixed $valueOrCallback
+     * @param callable $noneFound
      * @return mixed
      */
-    public function findIndex($valueOrCallback);
+    public function findIndex($valueOrCallback, callable $noneFound = null);
 
     /**
      * Returns first $count elements of the collection or returns first element if $count is null.
      *
      * @param int $count
-     * @return static|mixed
+     * @return mixed|static
      */
     public function first($count = null);
 
@@ -186,16 +170,15 @@ interface EnumerableInterface extends Countable, IteratorAggregate
     /**
      * Reduces collection by applying binary operation on each element accumulating result in memo variable.
      *
-     * If $initial is null, it tries to pick empty initial value of accumulation, e.g. 0 for number-related operations
-     * and '' for string concatenation ('.').
+     * If $initial is null, it will pick the first element as initial value.
      *
-     * If $operationOrCallback is callable, it calls it for each element, passing memo and element in this order.
+     * TODO ~~If $operation is callable, it calls it for each element, passing memo and element in this order.~~
      *
-     * @param string|callable $operationOrCallback
+     * @param string $operation
      * @param mixed $initial
      * @return mixed
      */
-    public function reduce($operationOrCallback, $initial = null);
+    public function reduce($operation, $initial = null);
 
     /**
      * Returns new collection with the results of running $callback over each element.
@@ -211,8 +194,8 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      * If $compare is given, it's results will be used to compare items between each other.
      * $compare should only return -1, 0 or 1.
      *
-     * If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
-     * maximum value.
+     * TODO ~~If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
+     * maximum value.~~
      *
      * Otherwise, method will try to apply normal comparison logic.
      *
@@ -227,8 +210,8 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      * If $compare is given, it's results will be used to compare items between each other.
      * $compare should only return -1, 0 or 1.
      *
-     * If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
-     * maximum value.
+     * TODO ~~If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
+     * maximum value.~~
      *
      * Otherwise, method will try to apply normal comparison logic.
      *
@@ -259,8 +242,8 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      * If $compare is given, it's results will be used to compare items between each other.
      * $compare should only return -1, 0 or 1.
      *
-     * If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
-     * minimum value.
+     * TODO ~~ If items in collection implement Sergekukharev/Enumerable/ComparableInterface, it will be used to determine
+     * minimum value.~~
      *
      * Otherwise, method will try to apply normal comparison logic.
      *
