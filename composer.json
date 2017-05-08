@@ -1,0 +1,19 @@
+{
+    "name": "sergekukharev/enumerable",
+    "type": "library",
+    "require": {
+        "phpunit/phpunit": "^6.0"
+    },
+    "license": "MIT License",
+    "authors": [
+        {
+            "name": "Serge Kukharev",
+            "email": "serge.kukharev@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sergekukharev\\Enumerable\\": "src/"
+        }
+    }
+}
