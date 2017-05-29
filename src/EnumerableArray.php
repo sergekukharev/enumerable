@@ -20,6 +20,7 @@ class EnumerableArray implements EnumerableInterface
 
     /**
      * @inheritDoc
+     * @return ArrayIterator
      */
     public function getIterator()
     {
@@ -506,7 +507,15 @@ class EnumerableArray implements EnumerableInterface
      */
     public function reject(callable $callback)
     {
-        // TODO: Implement reject() method.
+        $data = [];
+
+        foreach ($this->getIterator() as $item) {
+            if ($callback($item) === false) {
+                $data[] = $item;
+            }
+        }
+
+        return new static($data);
     }
 
     /**
@@ -514,7 +523,21 @@ class EnumerableArray implements EnumerableInterface
      */
     public function reverseEach(callable $callback)
     {
-        // TODO: Implement reverseEach() method.
+        $result = null;
+
+        foreach ($this->getReverseIterator() as $value) {
+            $result = $callback($value);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return ArrayIterator
+     */
+    private function getReverseIterator()
+    {
+        return new ArrayIterator(array_reverse($this->getIterator()->getArrayCopy()));
     }
 
     /**
@@ -522,7 +545,7 @@ class EnumerableArray implements EnumerableInterface
      */
     public function select(callable $callback)
     {
-        // TODO: Implement select() method.
+        return $this->findAll($callback);
     }
 
     /**
@@ -530,7 +553,18 @@ class EnumerableArray implements EnumerableInterface
      */
     public function sort(callable $compare = null)
     {
-        // TODO: Implement sort() method.
+        $arrayCopy = $this->getIterator()->getArrayCopy();
+
+        if ($compare === null) {
+
+            sort($arrayCopy);
+
+            return new static($arrayCopy);
+        }
+
+        usort($arrayCopy, $compare);
+
+        return new static($arrayCopy);
     }
 
     /**

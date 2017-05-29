@@ -300,6 +300,8 @@ interface EnumerableInterface extends Countable, IteratorAggregate
      *
      * @param callable $callback
      * @return mixed
+     *
+     * @see EnumerableInterface::findAll()
      */
     public function reject(callable $callback);
 
@@ -313,7 +315,11 @@ interface EnumerableInterface extends Countable, IteratorAggregate
 
     /**
      * Alias to findAll.
+     * @param callable $callback
      * @return mixed
+     *
+     * @see EnumerableInterface::findAll() Synonim method.
+     * @see EnumerableInterface::reject()
      */
     public function select(callable $callback);
 

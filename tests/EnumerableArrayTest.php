@@ -594,4 +594,71 @@ class EnumerableArrayTest extends TestCase
 
         self::assertTrue($array->hasNone());
     }
+
+    public function testRejectReturnsCollectionWithAllElementsForWhichCallbackReturnedFalse()
+    {
+        $lookup = function($item) { return $item > 5; };
+
+        $array = new EnumerableArray([-10, 5, 6, 19, 132, -3, 3]);
+
+        self::assertEquals(new EnumerableArray([-10, 5, -3, 3]), $array->reject($lookup));
+    }
+
+    public function testReverseEachCanBeUsedWithCallable()
+    {
+        $raw = [1, 2, 3];
+        $array = new EnumerableArray($raw);
+        $sum = 0;
+
+        $array->reverseEach(function($item) use (&$sum) {$sum += $item;});
+
+        self::assertEquals(array_sum($raw), $sum);
+    }
+
+    public function testReverseEachActuallyReversesTheCollection()
+    {
+        $raw = ['a', 'b', 'c'];
+        $array = new EnumerableArray($raw);
+        $concat = '';
+
+        $array->reverseEach(function($item) use (&$concat) {$concat .= $item;});
+
+        self::assertEquals('cba', $concat);
+    }
+
+    public function testSelectReturnsCollectionWithAllElementsForWhichCallbackReturnedTrue()
+    {
+        $lookup = function($item) { return $item > 5; };
+
+        $array = new EnumerableArray([-10, 5, 6, 19, 132, -3, 3]);
+
+        self::assertEquals(new EnumerableArray([6, 19, 132]), $array->select($lookup));
+    }
+
+    public function testSortWithNoArgumentsSortsByValues()
+    {
+        $array = new EnumerableArray([3, 5, -10, 0, 2]);
+
+        self::assertEquals(new EnumerableArray([-10, 0, 2, 3, 5]), $array->sort());
+    }
+
+    public function testSortWithComparisonMethod()
+    {
+        // Zeroes last, other numbers first.
+        $compare = function($a, $b) {
+            if ($a === $b) {
+                return 0;
+            }
+
+            if ($a === 0) {
+                return 1;
+            }
+
+            return $a > $b ? 1 : -1;
+        };
+
+        $array = new EnumerableArray([0, 3, 5, -10, 0, 2, 0]);
+
+        self::assertEquals(new EnumerableArray([-10, 2, 3, 5, 0, 0, 0]), $array->sort($compare));
+    }
 }
