@@ -458,18 +458,47 @@ class EnumerableArray implements EnumerableInterface
 
     /**
      * @inheritDoc
+     * @param mixed $identifier
      */
-    public function hasExactlyOne(callable $identifier)
+    public function hasExactlyOne($identifier = true)
     {
-        // TODO: Implement hasExactlyOne() method.
+        $count = 0;
+
+        foreach ($this->getIterator() as $item) {
+            if ($count > 1) {
+                break;
+            }
+
+            if (is_callable($identifier) && $identifier($item) === true) {
+                $count++;
+                continue;
+            }
+
+            if ($item === $identifier) {
+                $count++;
+            }
+        }
+
+        return $count === 1;
     }
 
     /**
      * @inheritDoc
+     * @param mixed $identifier
      */
-    public function hasNone(callable $identifier)
+    public function hasNone($identifier = true)
     {
-        // TODO: Implement hasNone() method.
+        foreach ($this->getIterator() as $item) {
+            if (is_callable($identifier) && $identifier($item) === true) {
+                return false;
+            }
+
+            if ($item === $identifier) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

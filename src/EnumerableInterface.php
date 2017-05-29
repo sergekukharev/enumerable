@@ -268,20 +268,32 @@ interface EnumerableInterface extends Countable, IteratorAggregate
     public function minMax(callable $compare = null);
 
     /**
-     * Returns true if collection has exactly one element for which $identifier returned true.
+     * Returns true if collection has exactly one element.
      *
-     * @param callable $identifier
+     * If $identifier is callable, method will return true if callable returns true exactly once.
+     *
+     * If $identifier is scalar value, method will return true only if one item in collection equals to provided value.
+     *
+     * If $identifier is not provided, method will return true only if one item in collection is equal to true.
+     *
+     * @param mixed $identifier
      * @return boolean
      */
-    public function hasExactlyOne(callable $identifier);
+    public function hasExactlyOne($identifier = null);
 
     /**
-     * Returns true if $identifier returned false for all the elements.
+     * Returns true if collection has exactly zero elements.
      *
-     * @param callable $identifier
+     * If $identifier is callable, method will return true if callable never returns true.
+     *
+     * If $identifier is scalar value, method will return true only if one item in collection equals to provided value.
+     *
+     * If $identifier is not provided, method will return true only if one item in collection is equal to true.
+     *
+     * @param mixed $identifier
      * @return boolean
      */
-    public function hasNone(callable $identifier);
+    public function hasNone($identifier = null);
 
     /**
      * Returns new collection with elements, for which $callback returned false.

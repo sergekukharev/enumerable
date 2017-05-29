@@ -441,11 +441,157 @@ class EnumerableArrayTest extends TestCase
         self::assertEquals(['1.0.123', '1.3.0'], $array->minMax($callback));
     }
 
-    public function testHasExactlyOneTrueCase()
+    public function testHasExactlyOneTrueCaseWithScalarIdentifier()
     {
-        self::markTestIncomplete();
         $array = new EnumerableArray([10, 12, 14, -8]);
 
         self::assertTrue($array->hasExactlyOne(12));
+    }
+
+    public function testHasExactlyOneFalseCaseNoHitsWithScalarIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        self::assertFalse($array->hasExactlyOne(12));
+    }
+
+    public function testHasExactlyOneFalseCaseMultipleHitsWithScalarIdentifier()
+    {
+        $array = new EnumerableArray([10, 12, -8, 12]);
+
+        self::assertFalse($array->hasExactlyOne(12));
+    }
+
+    public function testHasExactlyOneTrueCaseWithCallableIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        $comparisonFunction = function ($item) {
+            return $item > 13;
+        };
+
+        self::assertTrue($array->hasExactlyOne($comparisonFunction));
+    }
+
+    public function testHasExactlyOneFalseCaseNoHitsWithCallableIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        $comparisonFunction = function ($item) {
+            return $item > 50;
+        };
+
+        self::assertFalse($array->hasExactlyOne($comparisonFunction));
+    }
+
+    public function testHasExactlyOneFalseCaseMultipleHitsWithCallableIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        $comparisonFunction = function ($item) {
+            return $item > 5;
+        };
+
+        self::assertFalse($array->hasExactlyOne($comparisonFunction));
+    }
+
+    public function testHasExactlyOneTrueCaseWithNoIdentifier()
+    {
+        $array = new EnumerableArray([false, true, false]);
+
+        self::assertTrue($array->hasExactlyOne());
+    }
+
+    public function testHasExactlyOneFalseCaseWithNoHitsAndNoIdentifier()
+    {
+        $array = new EnumerableArray([false, false, false]);
+
+        self::assertFalse($array->hasExactlyOne());
+    }
+
+    public function testHasExactlyOneFalseCaseWithMultipleHitsAndNoIdentifier()
+    {
+        $array = new EnumerableArray([false, true, true]);
+
+        self::assertFalse($array->hasExactlyOne());
+    }
+
+    public function testHasExactlyOneWithNoIdentifierAndNullInCollectionReturnsFalse()
+    {
+        $array = new EnumerableArray([null, false]);
+
+        self::assertFalse($array->hasExactlyOne());
+    }
+
+    public function testHasExactlyOneWithNoIdentifierAndBothTrueAndNullInCollectionReturnsTrue()
+    {
+        $array = new EnumerableArray([null, true, false]);
+
+        self::assertTrue($array->hasExactlyOne());
+    }
+
+
+    public function testHasNoneTrueCaseWithEmptyCollection()
+    {
+        $array = new EnumerableArray();
+
+        self::assertTrue($array->hasNone(123));
+    }
+
+    public function testHasNoneTrueCaseWithScalarIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        self::assertTrue($array->hasNone(12));
+    }
+
+    public function testHasNoneFalseCaseWithScalarIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        self::assertFalse($array->hasNone(10));
+    }
+
+    public function testHasNoneTrueCaseWithCallableIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        $comparisonFunction = function ($item) {
+            return $item > 100;
+        };
+
+        self::assertTrue($array->hasNone($comparisonFunction));
+    }
+
+    public function testHasNoneFalseCaseWithCallableIdentifier()
+    {
+        $array = new EnumerableArray([10, 14, -8]);
+
+        $comparisonFunction = function ($item) {
+            return $item > 0;
+        };
+
+        self::assertFalse($array->hasNone($comparisonFunction));
+    }
+
+    public function testHasNoneTrueCaseWithNoIdentifier()
+    {
+        $array = new EnumerableArray([false, false, false]);
+
+        self::assertTrue($array->hasNone());
+    }
+
+    public function testHasNoneFalseCaseWithNoIdentifier()
+    {
+        $array = new EnumerableArray([false, true, false]);
+
+        self::assertFalse($array->hasNone());
+    }
+
+    public function testHasNoneWithNullsInCollectionReturnsTrue()
+    {
+        $array = new EnumerableArray([false, null, false]);
+
+        self::assertTrue($array->hasNone());
     }
 }
