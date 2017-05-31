@@ -5,6 +5,8 @@ use Sergekukharev\Enumerable\EnumerableArray;
 
 class EnumerableArrayTest extends TestCase
 {
+    //TODO check every method that returns collection if it keeps indexes/keys.
+
     // TODO reduce with callback
     public function testCanCallCallbackOnEachElement()
     {
@@ -277,7 +279,6 @@ class EnumerableArrayTest extends TestCase
 
         self::assertFalse($array->doesInclude(5));
     }
-
     /**
      * @param array $rawArray
      * @param string $operation
@@ -660,5 +661,80 @@ class EnumerableArrayTest extends TestCase
         $array = new EnumerableArray([0, 3, 5, -10, 0, 2, 0]);
 
         self::assertEquals(new EnumerableArray([-10, 2, 3, 5, 0, 0, 0]), $array->sort($compare));
+    }
+
+    public function testTakeReturnsNFirstElements()
+    {
+        $array = new EnumerableArray([1, 2, 3, 4, 5, 6]);
+
+        self::assertEquals(new EnumerableArray([1, 2, 3]), $array->take(3));
+    }
+
+    public function testTakePreservesKeys()
+    {
+        $array = new EnumerableArray([
+            'test' => 'foo',
+            'another' => 'bar',
+            'will' => 'skip'
+        ]);
+
+        $expected = new EnumerableArray([
+            'test' => 'foo',
+            'another' => 'bar',
+        ]);
+        self::assertEquals($expected, $array->take(2));
+    }
+
+    public function testTakeReturnsAllIfRequestedAmountIsBiggerThanCollectionCount()
+    {
+        $array = new EnumerableArray([1, 2, 3, 4, 5, 6]);
+
+        self::assertEquals(new EnumerableArray([1, 2, 3, 4, 5, 6]), $array->take(300));
+    }
+
+    public function testTakeWhileReturnsEmptyCollectionIfFirstCallReturnsTrue()
+    {
+        $callback = function() { return true; };
+        $array = new EnumerableArray([1, 2, 3, 4, 5, 6]);
+
+        self::assertEquals(new EnumerableArray(), $array->takeWhile($callback));
+    }
+
+    public function testTakeWhileReturnsWholeCollectionIfCallbackAlwaysReturnsFalse()
+    {
+        $callback = function() { return false; };
+        $array = new EnumerableArray([1, 2, 3, 4, 5, 6]);
+
+        self::assertEquals($array, $array->takeWhile($callback));
+    }
+
+    public function testTakeWhileReturnsItemsUntilCallbackReturnsTrue()
+    {
+        $callback = function($item) { return $item > 3; };
+        $array = new EnumerableArray([1, 2, 3, 4, 5, 6]);
+
+        self::assertEquals(new EnumerableArray([1, 2, 3]), $array->takeWhile($callback));
+    }
+
+    public function testTakeWhileKeepsTheKeys()
+    {
+        $callback = function($item) { return $item > 2; };
+        $array = new EnumerableArray(['one' => 1, 'two' => 2, 'three' => 3]);
+
+        self::assertEquals(new EnumerableArray(['one' => 1, 'two' => 2]), $array->takeWhile($callback));
+    }
+
+    public function testUniqueReturnsNewCollectionWithOnlyUniqueValuesFromCurrentOne()
+    {
+        $array = new EnumerableArray([1, 2, 3, 2, 3, 3]);
+
+        self::assertEquals(new EnumerableArray([1, 2, 3]), $array->unique());
+    }
+
+    public function testUniqueDoesStrongComparison()
+    {
+        $array = new EnumerableArray([1, 2, 1, 2, '1', '2', '1']);
+
+        self::assertEquals(new EnumerableArray([1, 2, '1', '2']), $array->unique());
     }
 }

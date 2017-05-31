@@ -572,7 +572,19 @@ class EnumerableArray implements EnumerableInterface
      */
     public function take($items)
     {
-        // TODO: Implement take() method.
+        $result = [];
+        $iterator = $this->getIterator();
+
+        if ($iterator->count() < $items) {
+            return new static($iterator->getArrayCopy());
+        }
+
+        for ($i = 0; $i < $items; $i++) {
+            $result[$iterator->key()] = $iterator->current();
+            $iterator->next();
+        }
+
+        return new static($result);
     }
 
     /**
@@ -580,7 +592,17 @@ class EnumerableArray implements EnumerableInterface
      */
     public function takeWhile(callable $callback)
     {
-        // TODO: Implement takeWhile() method.
+        $array = [];
+
+        foreach ($this->getIterator() as $key => $item) {
+            if ($callback($item) === true) {
+                break;
+            }
+
+            $array[$key] = $item;
+        }
+
+        return new static($array);
     }
 
     /**
@@ -588,6 +610,16 @@ class EnumerableArray implements EnumerableInterface
      */
     public function unique()
     {
-        // TODO: Implement unique() method.
+        $array = [];
+
+        foreach ($this->getIterator() as $item) {
+            if (in_array($item, $array, true)) {
+                continue;
+            }
+
+            $array[] = $item;
+        }
+
+        return new static($array);
     }
 }
